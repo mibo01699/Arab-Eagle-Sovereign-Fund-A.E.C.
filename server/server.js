@@ -199,4 +199,94 @@ app.post('/api/fund/monitor-misconduct', (req, res) => {
 app.listen(PORT, () => {
     console.log("[A.E.C. Sovereign Fund Governance Node] Operating and fully integrated on port: " + PORT);
 });
+const express = require('express');
+const path = require('path');
+const amanAlerts = require('./alertSystem');
+
+const app = express();
+const PORT = process.env.PORT || 3007;
+
+app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
+
+const BIGISH_YER_DEX_POOL = {
+    piReserve: BigInt("10000000000000"),
+    yerReserve: BigInt("1500000000000000"),
+    precisionFactor: BigInt("10000000")
+};
+
+const projectLedger = {
+    "PRJ-AEC-2026-01": {
+        operator: "@partner_dev",
+        fundingYER: "15000000",
+        fundControlShare: 60,
+        misconductScore: 0,
+        status: "ACTIVE",
+        accumulatedProfitsYER: BigInt("0")
+    }
+};
+
+app.post('/api/fund/evaluate-feasibility', (req, res) => {
+    try {
+        const { projectTitle, requestedCapitalYER, expectedRor, industrySector, collateralValueUSD } = req.body;
+        console.log("[AI Feasibility Node] Evaluation running for: " + projectTitle);
+
+        const capitalInUSD = parseFloat(requestedCapitalYER) * 0.00066;
+        const collateralToLoanRatio = (parseFloat(collateralValueUSD) / capitalInUSD) * 100;
+
+        let decision = "REJECTED";
+        let riskMitigationText = "Insufficient RWA collateral coverage to secure sovereign fund reserves.";
+
+        if (collateralToLoanRatio >= 150.0 && parseFloat(expectedRor) >= 12.0) {
+            decision = "APPROVED_BY_AI";
+            riskMitigationText = "Ecosystem validation successful. Fund claims 60% sovereign lion share ownership control.";
+        }
+
+        res.json({
+            success: decision === "APPROVED_BY_AI",
+            decision: decision,
+            collateralRatio: collateralToLoanRatio.toFixed(2) + "%",
+            fundOwnershipShare: "60% Sovereign Equity Control",
+            staffAppointmentQuota: "60% of core operational leadership directly appointed by A.E.C.",
+            assessmentReport: riskMitigationText,
+            clearingValidation: "ROUTED_VIA_BIGISH_YER_RESERVES"
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, error: "Feasibility engine processing collapse" });
+    }
+});
+
+app.post('/api/fund/monitor-misconduct', (req, res) => {
+    const { projectId, metricNeglectScore } = req.body;
+
+    if (!projectLedger[projectId]) {
+        return res.status(404).json({ success: false, error: "Project registration identifier missing" });
+    }
+
+    const project = projectLedger[projectId];
+    project.misconductScore = parseInt(metricNeglectScore);
+    let auditAction = "MANAGEMENT_COMPLIANT";
+
+    if (project.misconductScore >= 40 && project.misconductScore < 70) {
+        auditAction = "MANDATORY_BOARD_AUDIT";
+        amanAlerts.triggerAlert('RISK_ALERT', 'GOVERNANCE', "Minor operations divergence identified. Mandatory audit logged.");
+    } else if (project.misconductScore >= 70) {
+        auditAction = "EMERGENCY_TAKEOVER_ENFORCED";
+        project.status = "TAKEOVER_ACTIVE";
+        amanAlerts.triggerAlert('CRITICAL_CLAIM', 'LEGAL', "Ecosystem breach of trust verified. Operator deposed from governance structure.");
+    }
+
+    res.json({
+        success: true,
+        projectId: projectId,
+        misconductScore: project.misconductScore,
+        currentManagementState: project.status,
+        enforcementExecuted: auditAction,
+        note: "Fund claims 100% immediate control parameters under equity protective clauses."
+    });
+});
+
+app.listen(PORT, () => {
+    console.log("[A.E.C. Sovereign Fund Central Gateway] Live and secure on port: " + PORT);
+});
 
