@@ -1,4 +1,4 @@
-name: Arab Eagle Sovereign Fund Compliance CI
+name: Arab Eagle Sovereign Fund Compliance
 
 on:
   push:
@@ -7,28 +7,22 @@ on:
     branches: [ "main" ]
 
 jobs:
-  governance-audit:
+  administrative-audit:
+    name: التدقيق الإداري والمالي السيادي
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Code Pipeline
+    - name: سحب كود المستودع الموحد
       uses: actions/checkout@v4
 
-    - name: Setup Node Environment
+    - name: تهيئة بيئة تشغيل Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-node-version: '20'
+        cache: 'npm'
 
-    - name: Execute Sovereign Core Test
-      run: |
-        if [ -f tests/fund_chaos.test.js ]; then
-          node tests/fund_chaos.test.js
-        else
-          echo "Bypassing structural dependencies..."
-          exit 0
-        fi
+    - name: تثبيت الحزم الصارمة للمنصة
+      run: npm ci || npm install
 
-    - name: Verify Hardware Sandbox Isolation
-      run: |
-        echo "Validating zero hardware interceptors policy..."
-        echo "Integrity check passed successfully."
+    - name: تشغيل اختبارات المقاصة والـ BigInt لمنع الهدر
+      run: npm test
