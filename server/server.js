@@ -108,3 +108,95 @@ app.post('/api/fund/audit-delinquency', (req, res) => {
 app.listen(PORT, () => {
     console.log("[A.E.C. Sovereign Fund Gateway] Active and cross-linked to BIGISH-YER on port: " + PORT);
 });
+
+const express = require('express');
+const path = require('path');
+const amanAlerts = require('./alertSystem');
+
+const app = express();
+const PORT = process.env.PORT || 3007;
+
+app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
+
+// قاعدة بيانات محاكاة للمشاريع الممولة
+const projectLedger = {
+    "PRJ-AEC-2026-01": {
+        operator: "@partner_dev",
+        fundingYER: "10000000",
+        fundControlShare: 60, // 60% نصيب الأسد
+        misconductScore: 0,
+        status: "ACTIVE"
+    }
+};
+
+// 1. نظام دراسات الجدوى الذكي والموافقة الرقمية الصارمة لعدم خسارة رأس المال
+app.post('/api/fund/evaluate-feasibility', (req, res) => {
+    try {
+        const { projectTitle, requestedCapitalYER, expectedRor, industrySector, collateralValueUSD } = req.body;
+
+        console.log(`[🧠 AI Feasibility Node] Analyzing high-stakes funding request for: ${projectTitle}`);
+
+        // خوارزمية تصفية حازمة: تقييم المخاطر بناءً على القطاع وقيمة الضمان والـ Ror
+        const capitalInUSD = parseFloat(requestedCapitalYER) * 0.00066;
+        const collateralToLoanRatio = (parseFloat(collateralValueUSD) / capitalInUSD) * 100;
+
+        let decision = "REJECTED";
+        let riskMitigationText = "رأس المال المقترح يواجه مخاطر عالية أو الضمانات العينية غير كافية لحماية الصندوق.";
+
+        // شروط الموافقة الرقمية الصارمة: يجب أن يغطي الضمان 150% على الأقل من قيمة التمويل
+        if (collateralToLoanRatio >= 150.0 && parseFloat(expectedRor) >= 12.0) {
+            decision = "APPROVED_BY_AI";
+            riskMitigationText = "تمت الموافقة الرقمية القطعية. الصندوق يملك 60% من المشروع وصاحب الحق الأكبر في تعيين الإدارة والموظفين بنسبة 60%.";
+        }
+
+        res.json({
+            success: decision === "APPROVED_BY_AI",
+            decision,
+            collateralRatio: collateralToLoanRatio.toFixed(2) + "%",
+            fundOwnershipShare: "60% (Sovereign Lion Share)",
+            staffAppointmentQuota: "60% of management and staff roles directly controlled by A.E.C.",
+            assessmentReport: riskMitigationText,
+            clearingValidation: "ROUTED_VIA_BIGISH_YER_RESERVES"
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, error: "Feasibility engine disconnect" });
+    }
+});
+
+// 2. نظام الرقابة والتحقيق الصارم ورصد سوء الإدارة والتفريط
+app.post('/api/fund/monitor-misconduct', (req, res) => {
+    const { projectId, metricNeglectScore } = req.body; // مؤشر إهمال الأعمال (0-100)
+
+    if (!projectLedger[projectId]) {
+        return res.status(404).json({ success: false, error: "Project record not found" });
+    }
+
+    const project = projectLedger[projectId];
+    project.misconductScore = parseInt(metricNeglectScore);
+    let auditAction = "MANAGEMENT_COMPLIANT";
+
+    if (project.misconductScore >= 40 && project.misconductScore < 70) {
+        auditAction = "MANDATORY_BOARD_AUDIT";
+        amanAlerts.triggerAlert('RISK_ALERT', 'GOVERNANCE', `سوء إدارة متوسط مرصود لـ ${project.operator}. جاري فرض تدقيق إجباري لمجلس الإدارة.`);
+    } else if (project.misconductScore >= 70) {
+        auditAction = "EMERGENCY_TAKEOVER_ENFORCED";
+        project.status = "TAKEOVER_ACTIVE";
+        // إنفاذ القانون: عزل الشريك وحرمانه من الـ 40% وإسناد الإدارة والموظفين المعينين من الصندوق بنسبة 100%
+        amanAlerts.triggerAlert('CRITICAL_CLAIM', 'LEGAL', `تم تفعيل بند التفريط! عزل الشريك التشغيلي فوراً ومصادرة الأصول وإدارتها كلياً عبر موظفي الصندوق.`);
+    }
+
+    res.json({
+        success: true,
+        projectId,
+        misconductScore: project.misconductScore,
+        currentManagementState: project.status,
+        enforcementExecuted: auditAction,
+        note: "حقوق الصندوق محمية بنسبة 60% بموجب العقد الذكي للحوكمة الموحدة وصلاحيات AMM لـ BIGISH-YER."
+    });
+});
+
+app.listen(PORT, () => {
+    console.log("[A.E.C. Sovereign Fund Governance Node] Operating and fully integrated on port: " + PORT);
+});
+
