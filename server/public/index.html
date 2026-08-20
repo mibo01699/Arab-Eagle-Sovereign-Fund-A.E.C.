@@ -10,6 +10,8 @@
         .card { background: #1f2937; padding: 20px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #374151; }
         .btn { background: #10b981; color: white; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; font-size: 1rem; }
         .btn:hover { background: #059669; }
+        .btn-alert { background: #ef4444; }
+        .btn-alert:hover { background: #dc2626; }
         label { display: block; margin-bottom: 5px; color: #c084fc; font-weight: bold; }
         input, select { width: 100%; padding: 10px; background: #0b0f19; color: white; border: 1px solid #4b5563; border-radius: 6px; margin-bottom: 15px; box-sizing: border-box; }
         .status-box { background: #1e1b4b; padding: 15px; border-right: 4px solid #6366f1; border-radius: 4px; margin-top: 15px; }
@@ -41,8 +43,16 @@
         </form>
     </div>
 
+    <!-- قسم محاكاة الفحص الاستقصائي والتنفيذ القانوني في حال التأخر -->
+    <div class="card" style="border: 1px solid #ef4444;">
+        <h3 style="color:#ef4444;">⚖️ محاكي التدقيق والإنفاذ القانوني للضمانات العينية (Delinquency Auditor)</h3>
+        <label>أيام التأخير المفترضة عن دفع القسط (Days Overdue)</label>
+        <input type="number" id="daysOverdueInput" value="35" placeholder="أدخل عدد أيام التأخر مثل 10 أو 20 أو 35">
+        <button type="button" class="btn btn-alert" onclick="triggerLegalAudit()">تشغيل فحص التعثر وإجراءات حجز الأصول</button>
+    </div>
+
     <div class="status-box" id="responseBox" style="display:none;">
-        <h4 style="color:#10b981; margin-top:0;">📡 تقرير المقاصة الهجينة الفورية (Ecosystem Ledger):</h4>
+        <h4 style="color:#10b981; margin-top:0;">📡 تقرير المقاصة والإنفاذ السيادي (Ecosystem Matrix):</h4>
         <div id="outputData"></div>
     </div>
 </div>
@@ -52,14 +62,13 @@
         const loanId = document.getElementById('loanId').value;
         const tokenUsed = document.getElementById('tokenUsed').value;
         const installmentAmountYER = document.getElementById('installmentAmount').value;
-        const username = "@mibo01699"; // Pi Username Auto-Fetched via Sandbox
+        const username = "@mibo01699";
 
         const response = await fetch('/api/fund/execute-installment-secure', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ loanId, username, tokenUsed, installmentAmountYER })
         });
-        
         const data = await response.json();
         
         document.getElementById('responseBox').style.display = 'block';
@@ -68,6 +77,28 @@
             <p><strong>قناة المقاصة المركزية:</strong> ${data.clearingHouse} (${data.clearingStatus})</p>
             <p><strong>تأثير الـ AMM على السوق:</strong> <span style="color:#10b981; font-weight:bold;">${data.marketValueImpact}</span></p>
             <p><strong>الوحدات الصغيرة المسحوبة/المضخوخة (Stroops):</strong> ${data.allocatedPiStroops} Stroops</p>
+        `;
+    }
+
+    async function triggerLegalAudit() {
+        const loanId = document.getElementById('loanId').value;
+        const simulatedDaysOverdue = document.getElementById('daysOverdueInput').value;
+
+        const response = await fetch('/api/fund/audit-delinquency', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ loanId, simulatedDaysOverdue })
+        });
+        const data = await response.json();
+
+        document.getElementById('responseBox').style.display = 'block';
+        document.getElementById('outputData').innerHTML = `
+            <p><strong>معرف القرض:</strong> ${data.loanId}</p>
+            <p><strong>أيام التأخر المرصودة:</strong> <span style="color:#ef4444; font-weight:bold;">${data.daysOverdue} يوم</span></p>
+            <p><strong>حالة المحفظة والحساب بالمنظومة:</strong> ${data.accountStatus}</p>
+            <p><strong>حالة الأصول العينية الموثقة (RWA):</strong> ${data.collateralState}</p>
+            <p><strong>الإجراء القانوني الصادر فورا:</strong> <span style="color:#fbbf24; font-weight:bold;">${data.actionTaken}</span></p>
+            <p><small style="color:#9ca3af;">${data.note}</small></p>
         `;
     }
 </script>
