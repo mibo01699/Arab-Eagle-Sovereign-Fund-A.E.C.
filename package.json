@@ -1,15 +1,19 @@
 {
-  "name": "arab-eagle-sovereign-fund",
+  "name": "arab-eagle-sovereign-fund-a.e.c",
   "version": "1.0.0",
-  "description": "Arab Eagle Sovereign Fund A.E.C. Asset Core",
-  "main": "server/server.js",
+  "description": "The Arab Eagle Sovereign Fund (A.E.C.) is a sovereign financial institution offering financing services, microloans, and interest-free credit management.",
+  "main": "app.js",
   "scripts": {
-    "start": "node server/server.js",
-    "test": "node tests/fund_chaos.test.js"
+    "start": "node app.js",
+    "test": "node InstallmentTest.js"
   },
   "dependencies": {
-    "express": "^4.19.2"
+    "express": "^4.19.2",
+    "cors": "^2.8.5"
   },
-  "author": "mibo01699",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "author": "Mayass Ali",
   "license": "MIT"
 }
