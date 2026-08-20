@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A.E.C. Sovereign Fund Dashboard</title>
+    <style>
+        body { font-family: sans-serif; background-color: #0b0f19; color: #f1f5f9; padding: 20px; direction: ltr; }
+        .container { max-width: 850px; margin: 0 auto; background: #111827; padding: 25px; border-radius: 12px; border: 1px solid #1f2937; }
+        .header { text-align: center; border-bottom: 2px solid #a855f7; padding-bottom: 15px; margin-bottom: 25px; }
+        .card { background: #1f2937; padding: 20px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #374151; }
+        .btn { background: #a855f7; color: white; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; }
+        .btn:hover { background: #9333ea; }
+        .status { background: #10b981; color: white; padding: 3px 8px; border-radius: 12px; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h2>🦅 A.E.C. Sovereign Fund Protocol</h2>
+        <p>Zero-Interest Decentralized Finance & Real-World Asset (RWA) Collateral Core</p>
+    </div>
+
+    <div class="card">
+        <h3>🔒 Secure Pi Network KYC & Account Audit</h3>
+        <p>Ecosystem Identity Mapping: <span class="status">Verified via Sandbox</span></p>
+        <input type="text" id="user" value="@mibo01699" readonly style="width:100%; padding:10px; background:#0b0f19; color:white; border:1px solid #4b5563; border-radius:6px; box-sizing:border-box;">
+    </div>
+
+    <div class="card">
+        <h3>💰 Apply for Zero-Interest Financing / Micro-Credit</h3>
+        <label style="display:block; margin-bottom:5px; color:#c084fc;">Requested Loan Amount (in YER Stable Token)</label>
+        <input type="number" id="loanAmount" value="500000" style="width:100%; padding:10px; background:#0b0f19; color:white; margin-bottom:15px; border-radius:6px; border:1px solid #4b5563; box-sizing:border-box;">
+        
+        <label style="display:block; margin-bottom:5px; color:#c084fc;">Collateral Asset Type (RWA)</label>
+        <select id="asset" style="width:100%; padding:10px; background:#0b0f19; color:white; margin-bottom:15px; border-radius:6px; border:1px solid #4b5563;">
+            <option value="REAL_ESTATE">Real Estate & Facilities</option>
+            <option value="COMMERCIAL_CARGO">Commercial Cargo & Goods</option>
+            <option value="AGRICULTURAL_MACHINERY">Heavy Agricultural Equipment</option>
+        </select>
+
+        <label style="display:block; margin-bottom:5px; color:#c084fc;">Global Geographic Coordinates (GPS Location)</label>
+        <input type="text" id="gps" value="15.3547° N, 44.2075° E" style="width:100%; padding:10px; background:#0b0f19; color:white; margin-bottom:15px; border-radius:6px; border:1px solid #4b5563; box-sizing:border-box;">
+
+        <button class="btn" onclick="executeFundRequest()">Submit Request to AI Oracle & Clearing House</button>
+    </div>
+
+    <div id="outputBox" class="card" style="display:none; background:#1e1b4b;"></div>
+</div>
+
+<script>
+    async function executeFundRequest() {
+        const username = document.getElementById('user').value;
+        const requestedAmountYER = document.getElementById('loanAmount').value;
+        const assetType = document.getElementById('asset').value;
+        const geoCoordinates = document.getElementById('gps').value;
+
+        const res = await fetch('/api/fund/process-loan', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, requestedAmountYER, assetType, geoCoordinates })
+        });
+        const data = await res.json();
+        
+        const out = document.getElementById('outputBox');
+        out.style.display = 'block';
+        out.innerHTML = `
+            <h4 style="color:#10b981; margin-top:0;">Allocation Process Triggered Success</h4>
+            <p><strong>Approved Principal:</strong> ${data.allocatedYER} YER</p>
+            <p><strong>Fixed Upfront Fee:</strong> ${data.requiredFeePi} Pi ($${data.processingFeeUSD})</p>
+            <p><strong>AI Verdict:</strong> ${data.aiAssessment}</p>
+            <p><strong>Clearing Hub Link:</strong> ${data.clearingBridge}</p>
+        `;
+    }
+</script>
+</body>
+</html>
