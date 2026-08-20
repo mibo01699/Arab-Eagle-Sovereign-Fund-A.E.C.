@@ -19,6 +19,17 @@ jobs:
       with:
         node-version: '18'
 
+    # خطوة حاسمة: تهيئة الحزم وتثبيت المكتبات اللازمة لنجاح الفحص
+    - name: Initialize and Install Dependencies
+      run: |
+        if [ -f package.json ]; then
+          npm install
+        else
+          echo "Creating minimal package environment..."
+          npm init -y
+          npm install express
+        fi
+
     - name: Run Rigorous Feasibility and Takeover Simulation
       run: |
         if [ -f tests/fund_chaos.test.js ]; then
