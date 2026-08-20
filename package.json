@@ -1,0 +1,16 @@
+{
+  "name": "aec-sovereign-fund",
+  "version": "1.0.0",
+  "description": "A.E.C. Sovereign Fund - Zero Interest Finance and RWA Ledger",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "node server/server.js",
+    "test": "node tests/fund_chaos.test.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "dotenv": "^16.4.5"
+  },
+  "author": "Mayass Ali (mibo01699)",
+  "license": "MIT"
+}
