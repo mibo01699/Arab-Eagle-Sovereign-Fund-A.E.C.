@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🦅 صندوق الصقر العربي السيادي - منصة التمويل الذكي</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f6f9; color: #333; margin: 0; padding: 20px; text-align: right; }
+        .container { max-width: 800px; background: #fff; margin: 20px auto; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-top: 5px solid #c99738; }
+        h1, h2 { color: #1a2a3a; }
+        .btn { background-color: #c99738; color: white; border: none; padding: 12px 24px; font-size: 16px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; }
+        .btn:hover { background-color: #a37627; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: bold; color: #555; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 15px; }
+        .output-box { background: #f8f9fa; border-right: 4px solid #c99738; padding: 15px; margin-top: 15px; border-radius: 4px; font-family: monospace; white-space: pre-wrap; display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>🦅 صندوق الصقر العربي السيادي (A.E.C)</h1>
+        <p>منصة التمويل الرقمي الذكي للمقاصة والتمويل الخالي من الربا المتكاملة مع بنية BIGISH-YER السيادية.</p>
+        
+        <hr>
+
+        <!-- القسم الأول: تقديم طلب التمويل الحسن -->
+        <h2>🛡️ طلب تمويل حسن (رأس المال السيادي)</h2>
+        <div class="form-group">
+            <label>معرف المستفيد الموحد (User ID):</label>
+            <input type="text" id="loanUserId" value="USER-VIVO-777">
+        </div>
+        <div class="form-group">
+            <label>حجم التمويل المطلوب برمز YER (أصل الدين فقط):</label>
+            <input type="number" id="loanAmount" value="1000">
+        </div>
+        <div class="form-group">
+            <label>فترة السداد بالأشهر:</label>
+            <select id="loanDuration">
+                <option value="12">12 شهر</option>
+                <option value="24">24 شهر</option>
+                <option value="36">36 شهر</option>
+            </select>
+        </div>
+        <button class="btn" onclick="submitLoanApplication()">إصدار وتوثيق عقد التمويل برمجياً عبر Web3</button>
+        <div id="loanOutput" class="output-box"></div>
+
+        <br><hr><br>
+
+        <!-- القسم الثاني: بوابة المقاصة وسداد الأقساط -->
+        <h2>🔄 مقاصة وسداد الأقساط الدورية عبر الـ AMM</h2>
+        <div class="form-group">
+            <label>معرف عقد التمويل (Loan ID):</label>
+            <input type="text" id="payLoanId" placeholder="AEC-LOAN-XXXXXX">
+        </div>
+        <div class="form-group">
+            <label>طريقة سداد القسط المعتمدة:</label>
+            <select id="paymentMethod" onchange="toggleAmountLabel()">
+                <option value="YER">الرمز المحلي (YER الوحدات الصغرى)</option>
+                <option value="Pi">عملة الشبكة العالمية (Pi Stroops)</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label id="amountLabel">المبلغ بالوحدات الصغرى للـ YER:</label>
+            <input type="number" id="payAmount" value="5000000000000">
+        </div>
+        <button class="btn" onclick="submitInstallmentPayment()">إرسال الحركة لمحرك المقاصة لحماية رأس المال</button>
+        <div id="paymentOutput" class="output-box"></div>
+    </div>
+
+    <!-- 💻 محرك ربط الواجهة بالسيرفر السيادي -->
+    <script>
+        function toggleAmountLabel() {
+            const method = document.getElementById('paymentMethod').value;
+            const label = document.getElementById('amountLabel');
+            if (method === 'Pi') {
+                label.innerText = "المبلغ بعملة Pi مقاساً بالـ Stroops (بدون فواصل عشرية):";
+            } else {
+                label.innerText = "المبلغ بالوحدات الصغرى للـ YER (بدون فواصل عشرية):";
+            }
+        }
+
+        async function submitLoanApplication() {
+            const userId = document.getElementById('loanUserId').value;
+            const requestedAmountYer = document.getElementById('loanAmount').value;
+            const durationMonths = document.getElementById('loanDuration').value;
+            const output = document.getElementById('loanOutput');
+
+            output.style.display = 'block';
+            output.innerText = "جاري الاتصال بالعقد الذكي وتحويل السيولة من الاحتياطي...";
+
+            try {
+                const response = await fetch('/api/web3/finance/disburse-loan', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId, requestedAmountYer, durationMonths })
+                });
+                const data = await response.json();
+                output.innerText = JSON.stringify(data, null, 4);
+                if(data.loanId) document.getElementById('payLoanId').value = data.loanId;
+            } catch (error) {
+                output.innerText = "خطأ في الاتصال بالشبكة السيادية: " + error.message;
+            }
+        }
+
+        async function submitInstallmentPayment() {
+            const userId = document.getElementById('loanUserId').value;
+            const loanId = document.getElementById('payLoanId').value;
+            const paymentMethod = document.getElementById('paymentMethod').value;
+            const rawAmount = document.getElementById('payAmount').value;
+            const output = document.getElementById('paymentOutput');
+
+            if(!loanId) { alert("يرجى تحديد أو إنشاء معرف القرض أولاً."); return; }
+
+            output.style.display = 'block';
+            output.innerText = "جاري معالجة الدفعة عبر مصفوفة حماية رأس المال ومنع الازدواج...";
+
+            try {
+                const response = await fetch('/api/web3/finance/clear-installment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId, loanId, paymentMethod, rawAmount })
+                });
+                const data = await response.json();
+                output.innerText = JSON.stringify(data, null, 4);
+            } catch (error) {
+                output.innerText = "خطأ أثناء معالجة المقاصة: " + error.message;
+            }
+        }
+    </script>
+</body>
+</html>
