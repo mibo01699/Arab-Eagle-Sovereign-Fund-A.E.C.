@@ -18,11 +18,10 @@ jobs:
     - name: تهيئة بيئة تشغيل Node.js
       uses: actions/setup-node@v4
       with:
-        node-node-version: '20'
-        cache: 'npm'
+        node-version: '20'
 
     - name: تثبيت الحزم الصارمة للمنصة
-      run: npm ci || npm install
+      run: npm install
 
     - name: تشغيل اختبارات المقاصة والـ BigInt لمنع الهدر
-      run: npm test
+      run: node InstallmentTest.js
