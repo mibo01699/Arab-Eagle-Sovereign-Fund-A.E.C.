@@ -43,3 +43,4 @@
   * Authorized and licensed providers only.
   * Explicit removal of "unblockable" claims or logic from infrastructure code. No network circumvention tactics allowed.
 * **ARTIFICIAL INTELLIGENCE:** AI elements operate strictly in an Advisory/Decision-support role. Fully auditable logs are mandatory. AI has no uncontrolled autonomous financial or execution authority.
+
