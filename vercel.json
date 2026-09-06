@@ -2,14 +2,21 @@
   "version": 2,
   "builds": [
     {
-      "src": "vercel-aecfund-entry.js",
-      "use": "@vercel/node"
+      "src": "app.js",
+      "use": "@vercel/node",
+      "config": {
+        "runtime": "nodejs18.x"
+      }
     }
   ],
   "routes": [
     {
+      "src": "/api/(.*)",
+      "dest": "/app.js"
+    },
+    {
       "src": "/(.*)",
-      "dest": "vercel-aecfund-entry.js"
+      "dest": "/app.js"
     }
   ]
 }
